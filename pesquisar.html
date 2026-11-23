@@ -7,103 +7,130 @@
 <title>DedrisPlay - Pesquisar na TV</title>
 <style>
   :root { color-scheme: dark; }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
     margin: 0;
     min-height: 100vh;
-    padding: 30px 20px 46px;
+    padding: 22px 16px 46px;
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     background: radial-gradient(120% 90% at 50% 0%, #101b31 0%, #0a0e17 62%);
     color: #fff;
   }
-  main { max-width: 560px; margin: 0 auto; }
-  .brand { font-size: 20px; font-weight: 800; letter-spacing: .6px; color: #e8eefc; }
+  main { max-width: 640px; margin: 0 auto; }
+  .brand { font-size: 18px; font-weight: 800; letter-spacing: .6px; color: #e8eefc; }
   .brand span { color: #33e4ff; }
-  h1 { font-size: 30px; line-height: 1.15; margin: 30px 0 8px; }
-  p.sub { margin: 0 0 28px; color: #9db0cf; font-size: 16px; line-height: 1.5; }
+  h1 { font-size: 24px; line-height: 1.15; margin: 14px 0 14px; }
   .field { position: relative; }
   input {
     width: 100%;
-    padding: 20px 58px 20px 18px;
+    padding: 16px 56px 16px 16px;
     border-radius: 14px;
     border: 2px solid #2a3957;
     background: #060a14;
     color: #fff;
-    font-size: 24px;
+    font-size: 21px;
     line-height: 1.2;
   }
-  input:focus {
-    outline: none;
-    border-color: #33e4ff;
-    box-shadow: 0 0 0 4px rgba(51, 228, 255, .12);
-  }
+  input:focus { outline: none; border-color: #33e4ff; box-shadow: 0 0 0 4px rgba(51, 228, 255, .12); }
   input::placeholder { color: #5f7192; }
+  input:disabled { opacity: .5; }
   .clear {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 38px;
-    height: 38px;
-    border: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .1);
-    color: #cfe4ff;
-    font-size: 18px;
-    cursor: pointer;
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    width: 36px; height: 36px; border: 0; border-radius: 50%;
+    background: rgba(255, 255, 255, .1); color: #cfe4ff; font-size: 17px; cursor: pointer;
   }
   .clear:active { background: rgba(255, 255, 255, .2); }
-  .send {
-    width: 100%;
-    margin-top: 14px;
-    padding: 16px;
-    border: 0;
-    border-radius: 12px;
-    font-size: 18px;
-    font-weight: 700;
-    color: #fff;
-    background: linear-gradient(90deg, #00d4ff, #0066ff);
-    cursor: pointer;
-  }
-  .send:disabled { opacity: .55; }
-  .status {
-    margin-top: 22px;
-    min-height: 26px;
-    font-size: 16px;
-    color: #9db0cf;
-  }
+  .status { margin-top: 12px; min-height: 22px; font-size: 15px; color: #9db0cf; }
   .status.ok { color: #5df0a0; }
   .status.err { color: #ff8c8c; }
-  .tip {
-    margin-top: 30px;
-    padding-top: 18px;
-    border-top: 1px solid #1b2740;
-    color: #7f92b2;
-    font-size: 14px;
-    line-height: 1.55;
+  .meta { margin: 16px 2px 10px; font-size: 14px; color: #8ea2c4; min-height: 18px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 10px; }
+  .card { background: none; border: 0; padding: 0; color: inherit; text-align: left; cursor: pointer; font: inherit; }
+  .card:active .poster { transform: scale(.97); }
+  .poster {
+    position: relative; width: 100%; aspect-ratio: 2 / 3; border-radius: 10px; overflow: hidden;
+    background: #131d33; border: 1px solid #22304d; transition: transform .1s;
   }
+  .poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ph {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    padding: 8px; text-align: center; font-size: 13px; font-weight: 700; color: #7f92b2;
+    background: linear-gradient(160deg, #18253f, #0e1628);
+  }
+  .badge { position: absolute; top: 6px; font-size: 11px; font-weight: 800; border-radius: 6px; padding: 2px 6px; }
+  .badge.fav { right: 6px; background: rgba(0, 0, 0, .6); color: #ffd23f; font-size: 15px; padding: 0 6px; }
+  .badge.new { left: 6px; background: #14b8cf; color: #031320; }
+  .ttl {
+    margin-top: 6px; font-size: 13px; line-height: 1.25; color: #e3ebfa;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  .tip { margin-top: 28px; padding-top: 16px; border-top: 1px solid #1b2740; color: #6f82a3; font-size: 13px; line-height: 1.55; }
+
+  /* Folha de ações */
+  .sheet-bg { position: fixed; inset: 0; background: rgba(0, 0, 0, .62); z-index: 20; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet-bg.hidden { display: none; }
+  .sheet {
+    width: 100%; max-width: 640px; background: #101a2e; border-radius: 20px 20px 0 0;
+    border-top: 1px solid #2a3957; padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+  .sheet-top { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+  .sheet-poster { position: relative; width: 104px; flex: 0 0 104px; aspect-ratio: 2 / 3; border-radius: 10px; overflow: hidden; background: #131d33; border: 1px solid #22304d; }
+  .sheet-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sheet-info { min-width: 0; }
+  .sheet-title { font-size: 19px; font-weight: 700; line-height: 1.25; word-break: break-word; }
+  .sheet-kind { margin-top: 6px; font-size: 14px; color: #8ea2c4; }
+  .btn {
+    display: block; width: 100%; margin-top: 10px; padding: 15px; border-radius: 12px;
+    font-size: 17px; font-weight: 700; color: #fff; cursor: pointer; border: 2px solid #2a3957; background: #16233c;
+  }
+  .btn.primary { border: 0; background: linear-gradient(90deg, #00d4ff, #0066ff); }
+  .btn.fav.on { border-color: #ffd23f; color: #ffd23f; }
+  .btn.ghost { background: transparent; color: #9db0cf; }
+  .btn:disabled { opacity: .55; }
+  .sheet-msg { margin-top: 12px; min-height: 20px; font-size: 14px; color: #9db0cf; text-align: center; }
+  .sheet-msg.ok { color: #5df0a0; }
+  .sheet-msg.err { color: #ff8c8c; }
 </style>
 </head>
 <body>
 <main>
   <div class="brand">Dedris<span>PLAY</span></div>
-  <h1>Pesquisar na TV</h1>
-  <p class="sub">Digite aqui e o texto aparece na TV em tempo real. Não precisa usar o controle.</p>
+  <h1 id="title">Pesquisar na TV</h1>
 
   <form id="f" autocomplete="off">
     <div class="field">
       <input id="q" type="text" maxlength="80" placeholder="Nome do filme ou série"
              autofocus autocapitalize="off" autocorrect="off" spellcheck="false"
-             enterkeyhint="send" aria-label="Texto da pesquisa">
+             enterkeyhint="search" aria-label="Texto da pesquisa">
       <button id="clear" class="clear" type="button" aria-label="Limpar pesquisa">✕</button>
     </div>
-    <button id="send" class="send" type="submit">Enviar agora</button>
   </form>
 
-  <div id="status" class="status" role="status">Digite abaixo. O texto aparece na TV.</div>
+  <div id="status" class="status" role="status">Conectando à TV…</div>
+  <div id="meta" class="meta"></div>
+  <div id="grid" class="grid"></div>
 
-  <p class="tip">Mantenha a TV na tela de pesquisa de Filmes ou Séries. O aplicativo não precisa ficar aberto no celular depois que você terminar; a TV continua na busca normalmente.</p>
+  <p class="tip">Os mesmos resultados aparecem na TV. Toque num título para abrir na TV ou adicionar aos favoritos. Mantenha a TV na tela de pesquisa.</p>
 </main>
+
+<div id="sheetBg" class="sheet-bg hidden">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-top">
+      <div id="sheetPoster" class="sheet-poster"></div>
+      <div class="sheet-info">
+        <div id="sheetTitle" class="sheet-title"></div>
+        <div id="sheetKind" class="sheet-kind"></div>
+      </div>
+    </div>
+    <button id="btnOpen" class="btn primary" type="button">📺 Abrir na TV</button>
+    <button id="btnFav" class="btn fav" type="button">☆ Adicionar aos favoritos</button>
+    <button id="btnClose" class="btn ghost" type="button">Fechar</button>
+    <div id="sheetMsg" class="sheet-msg"></div>
+  </div>
+</div>
+
 <script>
 (function () {
   // O QR code da TV abre esta pagina com  #topico  ou  #topico,servidor-ntfy-codificado
@@ -113,13 +140,21 @@
   var $ = function (id) { return document.getElementById(id); };
   var input = $('q');
   var statusEl = $('status');
-  var sendBtn = $('send');
   var timer = null;
   var lastQueued = null;
   var queue = Promise.resolve();
+  var es = null;
+  var everOpened = false;
+  var dead = false;
 
-  // Se a URL mudar de topico sem recarregar (mesma pagina, outro hash),
-  // recarrega para ler o novo QR.
+  // Catalogo recebido da TV
+  var cur = { rid: 0, k: '', q: '', total: 0, got: {} };
+  var items = [];
+  var waiting = false;
+  var waitTimer = null;
+  var noReply = false;
+  var sheetItem = null;
+
   window.addEventListener('hashchange', function () { location.reload(); });
 
   function setStatus(text, kind) {
@@ -130,27 +165,39 @@
   if (!/^dedrisplay-[a-z0-9]{10,}$/.test(topic)) {
     setStatus('Código inválido. Gere um novo QR code na TV.', 'err');
     input.disabled = true;
-    sendBtn.disabled = true;
     return;
   }
 
-  // Publica sempre a consulta inteira (nao uma tecla por vez). Assim, mesmo que
-  // uma mensagem se perca, a proxima acerta o texto por completo.
+  /* ---------- celular -> TV ---------- */
+  function post(obj) {
+    return fetch(server + '/' + topic, { method: 'POST', body: JSON.stringify(obj) })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r; });
+  }
+
+  // Publica sempre a consulta inteira: se uma mensagem se perder, a proxima corrige.
   function publish(q) {
-    if (q === lastQueued) return;
+    if (dead || q === lastQueued) return;
     lastQueued = q;
-    var body = JSON.stringify({ type: 'search', q: q });
     queue = queue.then(function () {
-      return fetch(server + '/' + topic, { method: 'POST', body: body })
-        .then(function (r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          setStatus('Conectado à TV ✓', 'ok');
-        })
+      return post({ type: 'search', q: q })
+        .then(function () { setStatus('Conectado à TV ✓', 'ok'); })
         .catch(function () {
-          lastQueued = null; // permite tentar enviar de novo
+          lastQueued = null;
           setStatus('Falha ao enviar. Verifique a internet e tente de novo.', 'err');
         });
     });
+    if (q.trim()) {
+      waiting = true; noReply = false;
+      clearTimeout(waitTimer);
+      waitTimer = setTimeout(function () { waiting = false; noReply = true; renderMeta(); }, 8000);
+      renderMeta();
+    }
+  }
+
+  function sendHello() {
+    post({ type: 'search', hello: true })
+      .then(function () { setStatus('Conectado à TV ✓', 'ok'); })
+      .catch(function () { setStatus('Falha ao conectar. Digite para tentar de novo.', 'err'); });
   }
 
   function schedule() {
@@ -158,41 +205,224 @@
     timer = setTimeout(function () { publish(input.value); }, 350);
   }
 
-  // Avisa a TV que o celular conectou. A TV fecha o QR na hora, antes de digitar.
-  function publishHello() {
-    queue = queue.then(function () {
-      return fetch(server + '/' + topic, {
-        method: 'POST',
-        body: JSON.stringify({ type: 'search', hello: true })
-      })
-        .then(function (r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          setStatus('Conectado à TV ✓', 'ok');
-        })
-        .catch(function () {
-          setStatus('Falha ao conectar. Verifique a internet e digite para tentar de novo.', 'err');
-        });
+  /* ---------- TV -> celular (SSE) ---------- */
+  function connect() {
+    if (typeof EventSource === 'undefined') {
+      setStatus('Este navegador não recebe os resultados da TV.', 'err');
+      sendHello();
+      return;
+    }
+    es = new EventSource(server + '/' + topic + '/sse');
+    es.onopen = function () {
+      if (!everOpened) {
+        everOpened = true;
+        sendHello();                       // so avisa a TV depois de estar ouvindo
+      } else {
+        lastQueued = null;                 // reconectou: pede a lista de novo
+        publish(input.value);
+      }
+    };
+    es.onerror = function () {
+      if (!dead) setStatus('Reconectando…', 'err');
+    };
+    es.onmessage = onSse;
+    // Se o SSE demorar a abrir, avisa a TV mesmo assim.
+    setTimeout(function () { if (!everOpened) { everOpened = true; sendHello(); } }, 2500);
+  }
+
+  function onSse(ev) {
+    var o, m;
+    try { o = JSON.parse(ev.data); } catch (e) { return; }
+    if (o.event && o.event !== 'message') return;
+    try { m = JSON.parse(o.message); } catch (e) { return; }
+    if (!m || typeof m !== 'object') return;
+    if (m.type === 'results') onResults(m);
+    else if (m.type === 'favstate') onFav(m);
+    else if (m.type === 'notice') onNotice(m);
+    else if (m.type === 'bye') onBye();
+  }
+
+  function onResults(m) {
+    var rid = Number(m.rid) || 0;
+    if (rid < cur.rid) return;
+    if (rid > cur.rid) cur = { rid: rid, k: m.k, q: m.q || '', total: Number(m.parts) || 1, got: {} };
+    cur.got[Number(m.part) || 0] = m.items || [];
+    var list = [];
+    for (var i = 0; i < cur.total; i++) {
+      if (!cur.got[i]) break;
+      list = list.concat(cur.got[i]);
+    }
+    items = list;
+    waiting = false; noReply = false;
+    clearTimeout(waitTimer);
+    $('title').textContent = cur.k === 'movies' ? 'Pesquisar Filmes' : 'Pesquisar Séries';
+    renderMeta();
+    renderGrid();
+  }
+
+  function onFav(m) {
+    for (var i = 0; i < items.length; i++) {
+      if (String(items[i].i) === String(m.id)) items[i].f = m.f ? 1 : 0;
+    }
+    renderGrid();
+    if (sheetItem && String(sheetItem.i) === String(m.id)) {
+      sheetItem.f = m.f ? 1 : 0;
+      refreshSheet();
+      setSheetMsg(m.f ? 'Adicionado aos favoritos ★' : 'Removido dos favoritos', 'ok');
+    }
+  }
+
+  function onNotice(m) {
+    var kind = m.kind || '';
+    setStatus(m.text || '', kind);
+    if (!sheetItem) return;
+    setSheetMsg(m.text || '', kind);
+    $('btnOpen').disabled = false;
+    if (kind === 'ok') setTimeout(closeSheet, 900);
+  }
+
+  function onBye() {
+    dead = true;
+    if (es) { try { es.close(); } catch (e) {} es = null; }
+    input.disabled = true;
+    setStatus('A TV encerrou a conexão. Gere um novo QR code para pesquisar de novo.', 'err');
+    closeSheet();
+  }
+
+  /* ---------- catalogo ---------- */
+  function renderMeta() {
+    var el = $('meta');
+    var q = input.value.trim();
+    if (!q) { el.textContent = 'Digite acima para buscar no catálogo da TV.'; return; }
+    if (waiting) { el.textContent = 'Buscando…'; return; }
+    if (noReply) { el.textContent = 'A TV não respondeu. Deixe a TV na tela de pesquisa.'; return; }
+    if (!items.length) { el.textContent = 'Nenhum resultado para “' + (cur.q || q) + '”.'; return; }
+    el.textContent = items.length + (items.length === 1 ? ' resultado' : ' resultados') + (cur.q ? ' para “' + cur.q + '”' : '');
+  }
+
+  function posterSrc(p) {
+    if (!p) return '';
+    if (p.charAt(0) === '~') return 'https://image.tmdb.org/t/p/w342/' + p.slice(1);
+    if (/^http:/i.test(p)) return 'https://wsrv.nl/?url=' + encodeURIComponent(p) + '&w=300&h=450&fit=cover&output=jpg';
+    return p;
+  }
+
+  function fillPoster(box, it) {
+    box.textContent = '';
+    var ph = document.createElement('div');
+    ph.className = 'ph';
+    ph.textContent = it.n;
+    box.appendChild(ph);
+    var src = posterSrc(it.p);
+    if (!src) return;
+    var img = document.createElement('img');
+    img.alt = '';
+    img.loading = 'lazy';
+    img.referrerPolicy = 'no-referrer';
+    img.onload = function () { if (ph.parentNode) ph.parentNode.removeChild(ph); };
+    img.onerror = function () { if (img.parentNode) img.parentNode.removeChild(img); };
+    img.src = src;
+    box.insertBefore(img, ph);
+  }
+
+  function renderGrid() {
+    var grid = $('grid');
+    grid.textContent = '';
+    items.forEach(function (it, idx) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'card';
+      var poster = document.createElement('div');
+      poster.className = 'poster';
+      fillPoster(poster, it);
+      if (it.w) { var n = document.createElement('span'); n.className = 'badge new'; n.textContent = 'NOVO'; poster.appendChild(n); }
+      if (it.f) { var s = document.createElement('span'); s.className = 'badge fav'; s.textContent = '★'; poster.appendChild(s); }
+      var t = document.createElement('div');
+      t.className = 'ttl';
+      t.textContent = it.n;
+      b.appendChild(poster);
+      b.appendChild(t);
+      b.addEventListener('click', function () { openSheet(idx); });
+      grid.appendChild(b);
     });
   }
 
-  // Envia um primeiro aviso para a TV esconder o QR sem precisar digitar nada.
-  setStatus('Conectando à TV…');
-  publishHello();
+  /* ---------- folha de acoes ---------- */
+  function setSheetMsg(text, kind) {
+    var el = $('sheetMsg');
+    el.textContent = text || '';
+    el.className = 'sheet-msg' + (kind ? ' ' + kind : '');
+  }
 
-  input.addEventListener('input', schedule);
+  function refreshSheet() {
+    if (!sheetItem) return;
+    var fav = !!sheetItem.f;
+    var b = $('btnFav');
+    b.textContent = fav ? '★ Remover dos favoritos' : '☆ Adicionar aos favoritos';
+    b.className = 'btn fav' + (fav ? ' on' : '');
+    b.disabled = false;
+  }
+
+  function openSheet(idx) {
+    var it = items[idx];
+    if (!it) return;
+    sheetItem = it;
+    fillPoster($('sheetPoster'), it);
+    $('sheetTitle').textContent = it.n;
+    $('sheetKind').textContent = cur.k === 'movies' ? 'Filme' : 'Série';
+    $('btnOpen').disabled = false;
+    setSheetMsg('');
+    refreshSheet();
+    $('sheetBg').classList.remove('hidden');
+    try { input.blur(); } catch (e) {}
+  }
+
+  function closeSheet() {
+    sheetItem = null;
+    $('sheetBg').classList.add('hidden');
+  }
+
+  function action(what) {
+    if (!sheetItem || dead) return;
+    var it = sheetItem;
+    if (what === 'open') { $('btnOpen').disabled = true; setSheetMsg('Abrindo na TV…'); }
+    else { $('btnFav').disabled = true; setSheetMsg('Enviando…'); }
+    post({ type: 'action', do: what, k: cur.k, id: it.i })
+      .catch(function () {
+        setSheetMsg('Falha ao enviar. Tente de novo.', 'err');
+        $('btnOpen').disabled = false;
+        $('btnFav').disabled = false;
+      });
+  }
+
+  $('btnOpen').addEventListener('click', function () { action('open'); });
+  $('btnFav').addEventListener('click', function () { action('fav'); });
+  $('btnClose').addEventListener('click', closeSheet);
+  $('sheetBg').addEventListener('click', function (e) { if (e.target === $('sheetBg')) closeSheet(); });
+
+  /* ---------- campo de busca ---------- */
+  input.addEventListener('input', function () {
+    if (!input.value.trim()) { items = []; waiting = false; noReply = false; clearTimeout(waitTimer); renderGrid(); }
+    renderMeta();
+    schedule();
+  });
   $('f').addEventListener('submit', function (e) {
     e.preventDefault();
     clearTimeout(timer);
     publish(input.value);
+    try { input.blur(); } catch (err) {}   // fecha o teclado para ver o catalogo
   });
   $('clear').addEventListener('click', function () {
     input.value = '';
     input.focus();
     clearTimeout(timer);
+    items = []; waiting = false;
+    renderGrid(); renderMeta();
     publish('');
   });
 
-  // Abre o teclado do celular assim que a pagina carregar (quando o navegador permite).
+  renderMeta();
+  connect();
   try { input.focus(); } catch (err) { /* ignore */ }
   setTimeout(function () { try { input.focus(); } catch (err) { /* ignore */ } }, 400);
 })();
