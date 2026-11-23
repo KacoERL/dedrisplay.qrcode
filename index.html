@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DedrisPlay - Enviar para a TV</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 18px 40px; font-family: system-ui, sans-serif; background: #0a0e17; color: #fff; }
+  main { max-width: 480px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  p.sub { margin: 0 0 22px; color: #9db0cf; font-size: 15px; }
+  .tabs { display: flex; gap: 10px; margin-bottom: 18px; }
+  .tabs button { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid #2a3957; background: #131d33; color: #fff; font-size: 16px; font-weight: 700; }
+  .tabs button.on { border-color: #00d4ff; color: #33e4ff; background: #0d2a3a; }
+  label { display: block; margin: 14px 0 6px; font-size: 14px; color: #d5e2f7; font-weight: 600; }
+  input { width: 100%; padding: 14px; border-radius: 10px; border: 2px solid #2a3957; background: #060a14; color: #fff; font-size: 17px; }
+  input:focus { outline: none; border-color: #33e4ff; }
+  .send { width: 100%; margin-top: 24px; padding: 16px; border: 0; border-radius: 12px; font-size: 18px; font-weight: 700; color: #fff; background: linear-gradient(90deg, #00d4ff, #0066ff); }
+  .send:disabled { opacity: .6; }
+  #msg { margin-top: 18px; font-size: 16px; min-height: 24px; }
+  .ok { color: #5df0a0; } .err { color: #ff8c8c; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>DedrisPlay</h1>
+  <p class="sub">Preencha aqui e os dados aparecem na TV.</p>
+
+  <div class="tabs">
+    <button type="button" id="t-x" class="on">Xtream Codes</button>
+    <button type="button" id="t-m">Lista M3U</button>
+  </div>
+
+  <form id="f" autocomplete="off">
+    <div id="g-x">
+      <label for="server">Servidor (com http:// ou https://)</label>
+      <input id="server" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="http://servidor.com:8080">
+      <label for="user">Usuário</label>
+      <input id="user" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <label for="pass">Senha</label>
+      <input id="pass" autocapitalize="off" autocorrect="off" spellcheck="false">
+    </div>
+    <div id="g-m" class="hidden">
+      <label for="m3u">URL da lista M3U / M3U8</label>
+      <input id="m3u" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="http://servidor.com/playlist.m3u">
+    </div>
+    <button class="send" id="go" type="submit">Enviar para a TV</button>
+  </form>
+  <div id="msg"></div>
+</main>
+<script>
+(function () {
+  // O QR code da TV abre esta pagina com  #topico  ou  #topico,servidor-ntfy-codificado
+  var parts = decodeURIComponent(location.hash.slice(1)).split(',');
+  var topic = (parts[0] || '').trim();
+  var server = (parts[1] ? decodeURIComponent(parts[1]) : 'https://ntfy.sh').replace(/\/+$/, '');
+  var mode = 'xtream';
+  var $ = function (id) { return document.getElementById(id); };
+  var msg = $('msg');
+
+  function setMode(m) {
+    mode = m;
+    $('t-x').className = m === 'xtream' ? 'on' : '';
+    $('t-m').className = m === 'm3u' ? 'on' : '';
+    $('g-x').className = m === 'xtream' ? '' : 'hidden';
+    $('g-m').className = m === 'm3u' ? '' : 'hidden';
+  }
+  $('t-x').onclick = function () { setMode('xtream'); };
+  $('t-m').onclick = function () { setMode('m3u'); };
+
+  if (!/^dedrisplay-[a-z0-9]{10,}$/.test(topic)) {
+    msg.className = 'err';
+    msg.textContent = 'Código inválido. Gere um novo QR code na TV.';
+    $('go').disabled = true;
+  }
+
+  $('f').onsubmit = function (e) {
+    e.preventDefault();
+    var body = mode === 'm3u'
+      ? { mode: 'm3u', m3u: $('m3u').value.trim() }
+      : { mode: 'xtream', server: $('server').value.trim(), user: $('user').value.trim(), pass: $('pass').value };
+    if ((mode === 'm3u' && !body.m3u) || (mode === 'xtream' && (!body.server || !body.user))) {
+      msg.className = 'err'; msg.textContent = 'Preencha os campos.'; return;
+    }
+    $('go').disabled = true; msg.className = ''; msg.textContent = 'Enviando…';
+    fetch(server + '/' + topic, { method: 'POST', body: JSON.stringify(body) })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); msg.className = 'ok'; msg.textContent = 'Enviado! Olhe a TV.'; })
+      .catch(function () { msg.className = 'err'; msg.textContent = 'Falha ao enviar. Verifique a internet e tente de novo.'; })
+      .then(function () { $('go').disabled = false; });
+  };
+})();
+</script>
+</body>
+</html>
